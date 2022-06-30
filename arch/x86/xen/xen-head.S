@@ -26,15 +26,6 @@ SYM_CODE_START(startup_xen)
 	UNWIND_HINT_END_OF_STACK
 	cld
 
-	/* Clear .bss */
-	xor %eax,%eax
-	mov $__bss_start, %_ASM_DI
-	mov $__bss_stop, %_ASM_CX
-	sub %_ASM_DI, %_ASM_CX
-	shr $__ASM_SEL(2, 3), %_ASM_CX
-	rep __ASM_SIZE(stos)
-
-	mov %_ASM_SI, xen_start_info
 	mov initial_stack(%rip), %rsp
 
 	/* Set up %gs.
@@ -49,6 +40,7 @@ SYM_CODE_START(startup_xen)
 	cdq
 	wrmsr
 
+	mov	%rsi, %rdi
 	call xen_start_kernel
 SYM_CODE_END(startup_xen)
 	__FINIT
