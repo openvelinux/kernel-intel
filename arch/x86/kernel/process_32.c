@@ -210,7 +210,7 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	if (prev->gs | next->gs)
 		lazy_load_gs(next->gs);
 
-	this_cpu_write(current_task, next_p);
+	raw_cpu_write(pcpu_hot.current_task, next_p);
 
 	switch_fpu_finish();
 
