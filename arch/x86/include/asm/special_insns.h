@@ -120,17 +120,6 @@ static inline void native_wbinvd(void)
 	asm volatile("wbinvd": : :"memory");
 }
 
-extern asmlinkage void asm_load_gs_index(u16 selector);
-
-static inline void native_load_gs_index(unsigned int selector)
-{
-	unsigned long flags;
-
-	local_irq_save(flags);
-	asm_load_gs_index(selector);
-	local_irq_restore(flags);
-}
-
 static inline unsigned long __read_cr4(void)
 {
 	return native_read_cr4();
@@ -183,15 +172,6 @@ static inline void wbinvd(void)
 {
 	native_wbinvd();
 }
-
-#ifdef CONFIG_X86_64
-
-static inline void load_gs_index(unsigned int selector)
-{
-	native_load_gs_index(selector);
-}
-
-#endif
 
 #endif /* CONFIG_PARAVIRT_XXL */
 
