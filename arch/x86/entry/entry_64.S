@@ -375,9 +375,9 @@ SYM_CODE_START(\asmsym)
 
 	.if \vector == X86_TRAP_BP
 		/* #BP advances %rip to the next instruction */
-		UNWIND_HINT_IRET_REGS offset=\has_error_code*8 signal=0
+		UNWIND_HINT_IRET_ENTRY offset=\has_error_code*8 signal=0
 	.else
-		UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+		UNWIND_HINT_IRET_ENTRY offset=\has_error_code*8
 	.endif
 
 	ENDBR
@@ -440,7 +440,7 @@ SYM_CODE_END(\asmsym)
  */
 .macro idtentry_mce_db vector asmsym cfunc
 SYM_CODE_START(\asmsym)
-	UNWIND_HINT_IRET_REGS
+	UNWIND_HINT_IRET_ENTRY
 	ENDBR
 	ASM_CLAC
 	cld
@@ -497,7 +497,7 @@ SYM_CODE_END(\asmsym)
  */
 .macro idtentry_vc vector asmsym cfunc
 SYM_CODE_START(\asmsym)
-	UNWIND_HINT_IRET_REGS
+	UNWIND_HINT_IRET_ENTRY
 	ENDBR
 	ASM_CLAC
 	cld
@@ -561,7 +561,7 @@ SYM_CODE_END(\asmsym)
  */
 .macro idtentry_df vector asmsym cfunc
 SYM_CODE_START(\asmsym)
-	UNWIND_HINT_IRET_REGS offset=8
+	UNWIND_HINT_IRET_ENTRY offset=8
 	ENDBR
 	ASM_CLAC
 	cld
@@ -1074,7 +1074,7 @@ SYM_CODE_START_LOCAL(error_entry)
 .Lerror_entry_done_lfence:
 	FENCE_SWAPGS_KERNEL_ENTRY
 	leaq	8(%rsp), %rax			/* return pt_regs pointer */
-	ANNOTATE_UNRET_END
+	VALIDATE_UNRET_END
 	RET
 
 .Lbstep_iret:
@@ -1120,7 +1120,7 @@ SYM_CODE_END(error_return)
  *	      when PAGE_TABLE_ISOLATION is in use.  Do not clobber.
  */
 SYM_CODE_START(asm_exc_nmi)
-	UNWIND_HINT_IRET_REGS
+	UNWIND_HINT_IRET_ENTRY
 	ENDBR
 
 	/*

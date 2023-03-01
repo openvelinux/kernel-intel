@@ -150,6 +150,22 @@ struct unwind_hint {
 	.popsection
 .endm
 
+/*
+ * Use objtool to validate the entry requirement that all code paths do
+ * VALIDATE_UNRET_END before RET.
+ *
+ * NOTE: The macro must be used at the beginning of a global symbol, otherwise
+ * it will be ignored.
+ */
+.macro VALIDATE_UNRET_BEGIN
+#if defined(CONFIG_NOINSTR_VALIDATION) && defined(CONFIG_CPU_UNRET_ENTRY)
+.Lhere_\@:
+	.pushsection .discard.validate_unret
+	.long	.Lhere_\@ - .
+	.popsection
+#endif
+.endm
+
 #endif /* __ASSEMBLY__ */
 
 #else /* !CONFIG_STACK_VALIDATION */
