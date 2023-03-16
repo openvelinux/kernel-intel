@@ -26,7 +26,7 @@ SYM_CODE_START(startup_xen)
 	UNWIND_HINT_END_OF_STACK
 	cld
 
-	mov initial_stack(%rip), %rsp
+	leaq	(__end_init_task - PTREGS_SIZE)(%rip), %rsp
 
 	/* Set up %gs.
 	 *
