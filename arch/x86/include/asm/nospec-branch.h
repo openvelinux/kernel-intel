@@ -111,8 +111,8 @@
  * Abuse ANNOTATE_RETPOLINE_SAFE on a NOP to indicate UNRET_END, should
  * eventually turn into it's own annotation.
  */
-.macro ANNOTATE_UNRET_END
-#if (defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_SRSO))
+.macro VALIDATE_UNRET_END
+#if (defined(CONFIG_NOINSTR_VALIDATION) && (defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_SRSO)))
 	ANNOTATE_RETPOLINE_SAFE
 	nop
 #endif
@@ -184,7 +184,7 @@
 .macro UNTRAIN_RET
 #if defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_IBPB_ENTRY) || \
 	defined(CONFIG_CPU_SRSO)
-	ANNOTATE_UNRET_END
+	VALIDATE_UNRET_END
 	CALL_UNTRAIN_RET
 	ALTERNATIVE "", "call entry_ibpb", X86_FEATURE_ENTRY_IBPB
 #endif

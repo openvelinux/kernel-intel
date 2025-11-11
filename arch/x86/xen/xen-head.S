@@ -23,19 +23,10 @@
 #ifdef CONFIG_XEN_PV
 	__INIT
 SYM_CODE_START(startup_xen)
-	UNWIND_HINT_EMPTY
+	UNWIND_HINT_END_OF_STACK
 	cld
 
-	/* Clear .bss */
-	xor %eax,%eax
-	mov $__bss_start, %_ASM_DI
-	mov $__bss_stop, %_ASM_CX
-	sub %_ASM_DI, %_ASM_CX
-	shr $__ASM_SEL(2, 3), %_ASM_CX
-	rep __ASM_SIZE(stos)
-
-	mov %_ASM_SI, xen_start_info
-	mov initial_stack(%rip), %rsp
+	leaq	(__end_init_task - TOP_OF_KERNEL_STACK_PADDING - PTREGS_SIZE)(%rip), %rsp
 
 	/* Set up %gs.
 	 *
@@ -49,6 +40,7 @@ SYM_CODE_START(startup_xen)
 	cdq
 	wrmsr
 
+	mov	%rsi, %rdi
 	call xen_start_kernel
 SYM_CODE_END(startup_xen)
 	__FINIT
@@ -56,7 +48,7 @@ SYM_CODE_END(startup_xen)
 #ifdef CONFIG_XEN_PV_SMP
 .pushsection .text
 SYM_CODE_START(asm_cpu_bringup_and_idle)
-	UNWIND_HINT_EMPTY
+	UNWIND_HINT_END_OF_STACK
 
 	call cpu_bringup_and_idle
 SYM_CODE_END(asm_cpu_bringup_and_idle)
@@ -69,6 +61,7 @@ SYM_CODE_END(asm_cpu_bringup_and_idle)
 SYM_CODE_START(hypercall_page)
 	.rept (PAGE_SIZE / 32)
 		UNWIND_HINT_FUNC
+		ANNOTATE_NOENDBR
 		ANNOTATE_UNRET_SAFE
 		ret
 		.skip 31, 0xcc

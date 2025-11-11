@@ -49,7 +49,7 @@ struct instruction {
 	bool hint;
 	bool save, restore;
 	bool retpoline_safe;
-	bool entry;
+	bool unret;
 	s8 instr;
 	u8 visited;
 	struct alt_group *alt_group;
@@ -67,7 +67,7 @@ struct instruction {
 #define VISITED_BRANCH		0x01
 #define VISITED_BRANCH_UACCESS	0x02
 #define VISITED_BRANCH_MASK	0x03
-#define VISITED_ENTRY		0x04
+#define VISITED_UNRET		0x04
 
 static inline bool is_static_jump(struct instruction *insn)
 {

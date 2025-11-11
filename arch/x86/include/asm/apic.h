@@ -297,16 +297,21 @@ struct apic {
 	void	(*send_IPI_all)(int vector);
 	void	(*send_IPI_self)(int vector);
 
-	u32	disable_esr;
-
 	enum apic_delivery_modes delivery_mode;
-	bool	dest_mode_logical;
+
+	u32	disable_esr		: 1,
+		dest_mode_logical	: 1,
+		x2apic_set_max_apicid	: 1,
+		nmi_to_offline_cpu	: 1;
 
 	u32	(*calc_dest_apicid)(unsigned int cpu);
 
 	/* ICR related functions */
 	u64	(*icr_read)(void);
 	void	(*icr_write)(u32 low, u32 high);
+
+	/* The limit of the APIC ID space. */
+	u32	max_apic_id;
 
 	/* Probe, setup and smpboot functions */
 	int	(*probe)(void);
@@ -420,6 +425,8 @@ static inline u32 safe_apic_wait_icr_idle(void)
 }
 
 extern void __init apic_set_eoi_write(void (*eoi_write)(u32 reg, u32 v));
+
+void apic_send_nmi_to_offline_cpu(unsigned int cpu);
 
 #else /* CONFIG_X86_LOCAL_APIC */
 

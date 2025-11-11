@@ -127,6 +127,7 @@ static struct apic apic_flat __ro_after_init = {
 	.check_phys_apicid_present	= default_check_phys_apicid_present,
 	.phys_pkg_id			= flat_phys_pkg_id,
 
+	.max_apic_id			= 0xFE,
 	.get_apic_id			= flat_get_apic_id,
 	.set_apic_id			= set_apic_id,
 
@@ -138,6 +139,7 @@ static struct apic apic_flat __ro_after_init = {
 	.send_IPI_allbutself		= default_send_IPI_allbutself,
 	.send_IPI_all			= default_send_IPI_all,
 	.send_IPI_self			= default_send_IPI_self,
+	.nmi_to_offline_cpu		= true,
 
 	.inquire_remote_apic		= default_inquire_remote_apic,
 
@@ -218,6 +220,7 @@ static struct apic apic_physflat __ro_after_init = {
 	.check_phys_apicid_present	= default_check_phys_apicid_present,
 	.phys_pkg_id			= flat_phys_pkg_id,
 
+	.max_apic_id			= 0xFE,
 	.get_apic_id			= flat_get_apic_id,
 	.set_apic_id			= set_apic_id,
 
@@ -229,6 +232,7 @@ static struct apic apic_physflat __ro_after_init = {
 	.send_IPI_allbutself		= default_send_IPI_allbutself,
 	.send_IPI_all			= default_send_IPI_all,
 	.send_IPI_self			= default_send_IPI_self,
+	.nmi_to_offline_cpu		= true,
 
 	.inquire_remote_apic		= default_inquire_remote_apic,
 

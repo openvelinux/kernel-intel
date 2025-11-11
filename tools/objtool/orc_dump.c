@@ -39,11 +39,15 @@ static const char *reg_name(unsigned int reg)
 static const char *orc_type_name(unsigned int type)
 {
 	switch (type) {
-	case UNWIND_HINT_TYPE_CALL:
+	case ORC_TYPE_UNDEFINED:
+		return "(und)";
+	case ORC_TYPE_END_OF_STACK:
+		return "end";
+	case ORC_TYPE_CALL:
 		return "call";
-	case UNWIND_HINT_TYPE_REGS:
+	case ORC_TYPE_REGS:
 		return "regs";
-	case UNWIND_HINT_TYPE_REGS_PARTIAL:
+	case ORC_TYPE_REGS_PARTIAL:
 		return "regs (partial)";
 	default:
 		return "?";
@@ -195,6 +199,7 @@ int orc_dump(const char *_objname)
 			printf("%llx:", (unsigned long long)(orc_ip_addr + (i * sizeof(int)) + orc_ip[i]));
 		}
 
+		printf("type:%s", orc_type_name(orc[i].type));
 
 		printf(" sp:");
 
@@ -204,8 +209,7 @@ int orc_dump(const char *_objname)
 
 		print_reg(orc[i].bp_reg, bswap_if_needed(orc[i].bp_offset));
 
-		printf(" type:%s end:%d\n",
-		       orc_type_name(orc[i].type), orc[i].end);
+		printf(" signal:%d\n", orc[i].signal);
 	}
 
 	elf_end(elf);

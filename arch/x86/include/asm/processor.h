@@ -463,7 +463,7 @@ static inline unsigned long cpu_kernelmode_gs_base(int cpu)
 
 DECLARE_PER_CPU(void *, hardirq_stack_ptr);
 DECLARE_PER_CPU(bool, hardirq_stack_inuse);
-extern asmlinkage void ignore_sysret(void);
+extern asmlinkage void entry_SYSCALL32_ignore(void);
 
 /* Save actual FS/GS selectors and bases to current->thread */
 void current_save_fsgs(void);
@@ -686,8 +686,8 @@ extern void load_direct_gdt(int);
 extern void load_fixmap_gdt(int);
 extern void load_percpu_segment(int);
 extern void cpu_init(void);
-extern void cpu_init_secondary(void);
-extern void cpu_init_exception_handling(void);
+extern void cpu_init_exception_handling(bool boot_cpu);
+extern void cpu_init_replace_early_idt(void);
 extern void cr4_init(void);
 
 static inline unsigned long get_debugctlmsr(void)
@@ -782,7 +782,13 @@ static inline void spin_lock_prefetch(const void *x)
 #define KSTK_ESP(task)		(task_pt_regs(task)->sp)
 
 #else
-#define INIT_THREAD { }
+extern unsigned long __end_init_task[];
+
+#define INIT_THREAD {							\
+	.sp	= (unsigned long)&__end_init_task -			\
+		  TOP_OF_KERNEL_STACK_PADDING -				\
+		  sizeof(struct pt_regs),				\
+}
 
 extern unsigned long KSTK_ESP(struct task_struct *task);
 
