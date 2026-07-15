@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /* Copyright (c) 2024, ByteDance Ltd. and/or its affiliates. All rights reserved. */
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -44,6 +46,7 @@ static int device_release(struct inode *inodep, struct file *filep)
 	return 0;
 }
 static struct file_operations fops = {
+	.owner = THIS_MODULE,
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
@@ -53,6 +56,11 @@ static struct file_operations fops = {
 *loaded (initialization)*/
 static int __init init_my_module(void) {
 	int ret;
+
+	ret = register_hookbind();
+	if (ret)
+		goto register_hookbind;
+
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0)
 		goto register_chrdev;
@@ -69,26 +77,19 @@ static int __init init_my_module(void) {
 		ret = PTR_ERR(ebbcharDevice);
 		goto device_create;
 	}
-	if(register_hookbind())
-		return 0;
-	else
-		ret = -1;
-	device_destroy(ebbcharClass, MKDEV(Major, 0));
+
+	// never unloads:
+	__module_get(THIS_MODULE);
+	return 0;
+
 device_create:
 	class_destroy(ebbcharClass);
 class_create:
 	unregister_chrdev(Major, DEVICE_NAME);
 register_chrdev:
+	unregister_hookbind();
+register_hookbind:
 	return ret;
 }
-/*this function is called when the module is
-  *unloaded*/
-static void __exit cleanup_my_module(void)
-{
-	unregister_hookbind();
-	device_destroy(ebbcharClass, MKDEV(Major, 0));     // remove the device
-	class_destroy(ebbcharClass);                       // remove the device class
-	unregister_chrdev(Major, DEVICE_NAME);
-}
+
 module_init(init_my_module);
-module_exit(cleanup_my_module);
